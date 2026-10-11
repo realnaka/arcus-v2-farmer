@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.referral import REFERRAL_CODE, REFERRAL_URL, open_referral
 
 STEPS = [
-    ("注册", f"先打开 {REFERRAL_URL}（**必须在注册之前**，推荐关系在注册时绑定）"),
+    ("注册", f"先打开 {REFERRAL_URL}（要在注册之前；推荐关系在注册时绑定）"),
     ("装依赖", "cd arcus-farmer && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt"),
     ("跑测试", ".venv/bin/python -m pytest -q"),
     ("生成 API key", ".venv/bin/python tools/setup_key.py --env testnet --name main --account-index 0"),
@@ -62,7 +62,7 @@ def main() -> int:
     print()
     print(f"    {REFERRAL_URL}")
     print()
-    print("推荐关系在**注册时**绑定：一定要在注册/首次入金之前点开。")
+    print("推荐关系在**注册时**绑定：要在注册/首次入金之前点开。")
     if args.open:
         print("浏览器已尝试打开" if opened else "打不开浏览器 —— 请手动复制上面这个链接")
     print("=" * 78)

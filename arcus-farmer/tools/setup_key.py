@@ -96,7 +96,11 @@ def main() -> int:
                 break
             time.sleep(1)
 
+    from tools.referral import REFERRAL_URL
+
     print("\nNext steps:")
+    print(f"  0. if this account is not registered yet, sign up through")
+    print(f"     {REFERRAL_URL}   (the referral binds at sign-up, so it must come first)")
     print(f"  1. fund the account (testnet: Testnet Deposit button; mainnet: on-chain USDG)")
     print(f"  2. put the address + key path in config/<name>.yaml")
     print(f"  3. check the connection: python tools/ws_probe.py --env {args.env}")

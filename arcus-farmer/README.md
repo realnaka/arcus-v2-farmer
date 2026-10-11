@@ -1,5 +1,9 @@
 # arcus-farmer — 执行层
 
+> **还没开户？先点这个邀请链接再注册：<https://app.arcus.xyz/ref/SKHYGO>**
+> （作者的邀请链接，**不影响你的费率**。推荐关系在注册时绑定，注册之后再点无效。）
+> 命令行版本：`python3 tools/get_started.py --open`
+
 这是策略 V2 的**执行层**：一个 Arcus 客户端（签名 / REST / WebSocket / 本地状态镜像），
 加上开篮子、调杠杆、止损、监控、估分的工具。策略参数在
 [`config/spread-v2.yaml`](config/spread-v2.yaml)，设计说明在
@@ -16,8 +20,9 @@ REST 只用于下单撤单（IP 权重 0）和低频对账。这不是偏好，�
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python -m pytest -q                        # 96 项
+.venv/bin/python -m pytest -q                        # 100 项
 
+python3 tools/get_started.py --open                  # 先开户：邀请链接 + 上手清单
 cp config/example.yaml config/mainnet.yaml            # 填 address / key 路径 / env
 .venv/bin/python tools/ws_probe.py --env testnet      # 连通性
 .venv/bin/python tools/screen.py --env mainnet        # 只用公开接口筛标的
@@ -40,6 +45,8 @@ cp config/example.yaml config/mainnet.yaml            # 填 address / key 路径
 
 | 文件 | 作用 | 关键参数 |
 |---|---|---|
+| `tools/get_started.py` | **从这里开始**：邀请链接 + 上手清单 | `--open / --json` |
+| `tools/referral.py` | 邀请链接的唯一来源（fork 时改这里） | `REFERRAL_CODE` |
 | `tools/setup_key.py` | 生成 Ed25519 API key 并向 `POST /v1/createApiKey` 注册 | `--env --name --account-index` |
 | `tools/ws_probe.py` | 逐频道验证 WebSocket 有帧 | `--env` |
 | `tools/screen.py` | 标的筛选（公开接口），输出 CSV + HTML | `--env` |

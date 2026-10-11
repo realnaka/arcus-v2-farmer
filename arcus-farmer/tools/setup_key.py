@@ -99,7 +99,7 @@ def main() -> int:
     print("\nNext steps:")
     print(f"  1. fund the account (testnet: Testnet Deposit button; mainnet: on-chain USDG)")
     print(f"  2. put the address + key path in config/<name>.yaml")
-    print(f"  3. run: python main.py --config config/{args.name}.yaml --check")
+    print(f"  3. check the connection: python tools/ws_probe.py --env {args.env}")
     return 0
 
 

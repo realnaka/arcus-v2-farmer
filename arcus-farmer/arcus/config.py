@@ -63,9 +63,9 @@ class RiskConfig(BaseModel):
     leverage: int = 5
     dead_man_switch: DeadManSwitchConfig = Field(default_factory=DeadManSwitchConfig)
     watchdog_path: str = "state/arcus-farmer.watchdog"
-    # Mirror of tools/watchdog.py's --stale-seconds, for display only.  Keep the
-    # two in step; the dashboard used to hard-code 30s while the launchd job ran
-    # with 180s, which made the panel lie about the real safety margin.
+    # Staleness threshold for that heartbeat file, for display only.  Keep it in
+    # step with whatever watchdog actually runs: a panel that assumes 30s while
+    # the watchdog waits 180s lies about the real safety margin.
     watchdog_stale_s: int = 30
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Spread statistics + Arcus points model: hold the basket spread, or grid it?
 
-Points model from arcus-farmer/PLAN-POINTS.md (Season 1 Week 1 evidence):
+Points model from docs/points-model.md (Season 1 Week 1 evidence):
     points ~= OI_time * efficiency,  efficiency ~ 1,000-4,000 pts per $M-week
     of open interest, with a multiplier for RWA held outside US regular hours.
 Volume is a weak path on its own (a $5.49M-volume account scored 20 pts).

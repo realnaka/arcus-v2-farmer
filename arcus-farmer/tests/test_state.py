@@ -239,7 +239,7 @@ def test_a_partial_account_frame_must_not_be_parsed_as_a_full_snapshot():
     naive = Account.from_api(partial)
     assert naive.equity == Decimal("0")          # the dangerous reading
 
-    # the merge the supervisor performs instead
+    # the merge the account reader performs instead
     previous = Account.from_api({"accountEquity": "30.002866704", "freeCollateral": "29.5"})
     merged_raw = {
         "equity": str(previous.equity),

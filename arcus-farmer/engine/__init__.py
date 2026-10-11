@@ -1,1 +1,1 @@
-"""Strategy engine: grid state machine, risk guards and the supervisor."""
+"""Strategy engine helpers that are pure functions and testable in isolation."""

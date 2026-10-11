@@ -446,3 +446,4 @@ V1 的策略语义来自 [`perp-dex-tools`](https://github.com/your-quantguy/per
 MIT，见 [LICENSE](LICENSE)。仅供研究与学习，**不构成投资建议**。
 使用本仓库代码意味着你接受：可能亏掉全部本金，积分规则可能随时改变，
 并且你需要自己对所在司法辖区的合规性负责（Arcus 排除美国、英国、加拿大等辖区）。
+完整免责声明见 [DISCLAIMER.md](DISCLAIMER.md)。

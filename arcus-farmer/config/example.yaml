@@ -1,0 +1,50 @@
+# Account config for the memory-basket spread (strategy v2).
+#
+# Copy to config/<name>.yaml and fill in.  config/*.yaml is gitignored; only
+# this example and spread-v2.yaml are tracked.
+#
+#   cp config/example.yaml config/mainnet.yaml
+#
+# The strategy parameters (leverage, ET windows, stop ladder, ADL reset) live
+# in config/spread-v2.yaml, not here.  This file is only "which account, which
+# key, which guard rails" - the block every tool in arcus-farmer/ reads.
+
+account:
+  name: main
+  address: "0x0000000000000000000000000000000000000000"   # your account address
+  account_index: 0
+  api_key_path: "~/.arcus-farmer/keys/main.pem"           # 600-permission Ed25519 key
+  api_key_public: null        # optional; derived from the PEM when omitted
+  env: testnet                # testnet | mainnet
+  # ws_proxy: "http://127.0.0.1:7890"   # only if outbound WebSocket needs a proxy
+
+engine:
+  dry_run: true               # keep true until the testnet drill passes
+  poll_reconcile_s: 60
+  stop_file: state/STOP       # touch this file to stop opening anything new
+
+risk:
+  max_inventory_pct: 80       # position cap as a share of equity (cap report only)
+  account_max_dd_pct: 20      # venue-side backstop; the strategy has its own ladder
+  margin_usage_warn_pct: 70
+  reconcile_deviation_pct: 1
+  leverage: 8                 # guard rail: setLeverage only ever lowers
+  watchdog_path: state/main.watchdog
+  watchdog_stale_s: 180
+  dead_man_switch:
+    enabled: true
+    lead_s: 180               # must be within [5, 300]
+    refresh_s: 60
+
+dashboard:
+  enabled: true
+  host: 127.0.0.1
+  port: 8788                  # tools/spread_dashboard.py defaults to 8790
+
+storage_path: state/main.db
+log_dir: logs
+
+# The spread strategy holds a fixed basket, so it declares no per-symbol
+# ladder.  Leave this empty: the key exists because the account/risk block is
+# shared with the grid engine this repository does not ship.
+strategies: []

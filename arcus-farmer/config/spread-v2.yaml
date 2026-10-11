@@ -1,0 +1,107 @@
+# 记忆体 spread 策略 v2 —— 2026-10-08 实盘确认（(a) 69% 占用可接受 (b) rung 超时撤单重挂）
+#
+# 方向：多 MU+SKHY+SNDK（DRAM 持仓权重在可交易部分内归一）/ 空等额 DRAM，美元中性。
+# 仓位按 ET 窗口切换；止损按「自峰值权益回撤」三级降杠杆。
+# 设计与测算见 spread-lab/strategy_v2.py 与可视化目录 strategy-v2.html。
+
+mode:
+  # 2026-10-08 实盘决定：停掉所有调仓 —— 仓位冻结，不再跟实时权益/价格漂移，
+  # 也不做窗口切换加仓。只有风控还活着：止损阶梯的降杠杆（新档位只触发一次，
+  # 只降不升）与 −30% 熔断全平。
+  # 已执行档位 / 冻结目标记在 state/spread_ladder.json。
+  # 恢复自动调仓：把这里改回 false 并 launchctl kickstart -k gui/501/com.arcusfarm.spreadschedule。
+  hold_rebalance: true
+
+spread:
+  long_weights:            # DRAM (Roundhill Memory ETF) 持仓权重，2026-10-07
+    MU-USD: 0.2736
+    SKHY-USD: 0.2213
+    SNDK-USD: 0.0465
+  short_leg: DRAM-USD
+  tradeable_sum: 0.5414    # 三只可交易腿在 ETF 中的合计权重（归一化分母）
+  dollar_neutral: true
+
+leverage:
+  # 2026-10-08 选定「方案 C」：每边 3.0x 全时段统一。
+  # 约束：加成窗口 IM 15% x 总名义 6.0x = 90% 权益（留 10% 余量）；
+  #       进场 R = equity/维持保证金 = 2.50x；强平要 spread 走 2,000 bps；
+  #       ±5% 价格带打满后 R 仍有 1.75x。
+  # 加成窗口的 15% 初始保证金本身就是上限（每边 3.33x = IM 100%），所以基准已经是天花板，
+  # 不能再叠乘数 —— boost_multiplier 固定 1.0。
+  base_per_side: 3.0
+  boost_multiplier: 1.0
+
+schedule:                  # ET 时钟；boost_core 之外的加成窗口只吃加成不加杠杆
+  regular_start_h: 4.0     # Arcus 常规时段 = 04:00-20:00 ET（含盘前盘后，无加成）
+  regular_end_h: 20.0
+  boost_core:
+    - "21:30-01:00"        # 夜间核心：加成窗口去掉韩股开收盘 ±1.5h
+    - "weekend"
+  korea_avoid:             # 韩股 09:00-15:30 KST = KST-13h ET
+    open: ["18:30", "21:30"]    # 周日-周四
+    close: ["01:00", "04:00"]   # 周一-周五
+  us_avoid:                # 美股开收盘 ±1.5h（本来就落在常规时段内）
+    open: ["08:00", "11:00"]
+    close: ["14:30", "17:30"]
+
+# 触发量 = 自峰值权益的回撤百分比。
+#
+# 2026-10-08 重估（spread-lab/risk_mm.py）：原 5/8/12% 是拿「初始保证金占用」拍的，
+# 把能力上限当成了风险线。真正决定强平的是维持保证金：R = equity / (总名义 x 6.667%)，
+# R=1 才是强平。每边 2.0x 时进场 R=3.75，强平要 spread 走 3,667 bps；
+# 每边 2.3x 时 R=3.26，强平距离 3,014 bps。而历史最深回撤只有 401 bps（= 2.0x 下 8% 权益），
+# 结构性尾部（±5% 价格带打满）1,000 bps，扩张带 2,000 bps。
+# 所以止损改按「历史能跌到哪 + 你愿意亏多少」定，而不是按强平线定：
+stops:
+  ladder:
+    - trigger_pct: 12.0     # 每边2.0x = 600 bps（≈1.5x 历史最深回撤）；触发时 R 仍 >= 2.9
+      action: de_lever
+      target_per_side: 2.0   # 交易者 2026-10-08 批注：L1 降到每边 2x
+    - trigger_pct: 20.0     # = 1,000 bps，即 ±5% 价格带打满的结构性尾部；R >= 2.6
+      action: de_lever
+      target_per_side: 1.5   # 参数注释：L2 降到每边 1.5x
+    - trigger_pct: 30.0     # = 1,500 bps，落在 ±5% 与扩张带之间；R >= 2.3
+      action: flatten_and_halt
+  recovery:                # 逐级恢复：回到峰值 -1% 以内并维持 24h，每次只上一档
+    within_pct: 1.0
+    hold_hours: 24
+  peak_reset_pct: 50.0     # 权益创新高超过 50% 时清空 HALT（人工确认用）
+
+execution:
+  maker_first: true
+  fill_timeout_s: 300      # 5 分钟未成交 -> 撤单改 taker
+  through_bps: 40          # taker 时的穿越幅度（沿用 spread_basket.py）
+  reduce_is_always_taker: true   # 降杠杆 / 止损 / 熔断 直接吃单，不等 maker
+  grid_rung_policy: requote # 网格 rung 超时后撤单重挂，不吃单（实盘确认 b）
+  min_order_notional: 5
+  ladder_residual_notional: 50   # hold 模式下，档位减仓没跑完时的补单下限
+
+# ------------------------------------------------------------------- ADL 复位
+# 2026-10-11 实盘决定：ADL 按「盈利 × 杠杆」挑对手方（Arcus 不公布排序，但这是
+# 通行规则，本仓库的 engine/adl.py 也按这个口径建模），所以浮盈越大越危险。
+# 任一腿未实现盈亏触及「该腿保证金的 +leg_pnl_pct%」时：把整个篮子平掉，再按触发
+# 当时的同样大小重开 —— 入场价被重置到当前价，浮盈口径与吸引力一起归零。
+# 平仓和开仓都用既有方式：先挂 maker，fill_timeout_s 不成交就撤单改 taker。
+#
+# 与 hold 模式的关系：hold 冻结的是「调仓」，复位是风控动作，照常执行。
+# HALT / 熔断时复位自动放弃（那两种状态只允许减仓，不许重开）。
+# 事件流水 state/adl_reset_log.jsonl，阶段写在 state/spread_adl_reset.json。
+adl_reset:
+  enabled: true
+  leg_pnl_pct: 10.0        # 任一腿浮盈 >= 该腿保证金的 10% 即触发
+  fill_timeout_s: 300      # 与 execution.fill_timeout_s 相同：5 分钟 maker 未成交转 taker
+  cooldown_s: 1800         # 复位完成后的冷却，避免来回刷单
+  close_method: maker_first  # maker_first（实盘决定）| taker（平仓立刻吃单，不等 5 分钟）
+  notify: true             # 触发/完成各推一条飞书
+
+alerts:                    # tools/margin_watch.py 覆盖值；全部按权益比例，加本金后自动缩放
+  equity_dd_pct: [12, 20, 30]        # 与止损阶梯一致
+  free_pct: [24, 15, 6]              # ≈ $400 / $250 / $100 —— 这是「能不能开新仓」的容量告警
+  maint_buffer_pct: [60, 50, 40]     # 真正的风险告警：缓冲 < 60% 即 R < 2.5
+  regular_margin_pct: [90, 95, 98]   # 初始保证金用满是可以接受的，只作容量提醒
+  boost_margin_pct: disabled         # 加成窗口基准占用 69%
+
+limits:
+  max_leg_notional_usd: 250       # 日轮次容量约束（SKHY 是瓶颈腿）
+  max_rounds_per_day: 16
+  stop_file: state/STOP           # 存在时不下任何新单（沿用主配置的停机开关）

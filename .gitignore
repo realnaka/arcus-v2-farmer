@@ -1,0 +1,32 @@
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Secrets and live state never leave the machine that runs them.
+arcus-farmer/keys/
+arcus-farmer/state/
+arcus-farmer/logs/
+arcus-farmer/reports/
+arcus-farmer/*.db
+arcus-farmer/config/*.yaml
+!arcus-farmer/config/example.yaml
+!arcus-farmer/config/spread-v2.yaml
+*.bak-*
+.env
+
+# Research inputs and generated reports: re-fetch or re-run them.
+spread-lab/data/
+spread-lab/out/
+spread-lab/report*.html
+spread-lab/*_results.json
+spread-lab/*_stats.json
+spread-lab/plan_L2.json
+spread-lab/strategy_v2.json
+spread-lab/strategy_v2.yaml
+spread-lab/leverage_*.json
+spread-lab/risk*.json
+spread-lab/extras.json
+spread-lab/results.json
+spread-lab/holdings_cache.json

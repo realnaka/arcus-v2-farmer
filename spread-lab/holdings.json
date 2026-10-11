@@ -1,0 +1,22 @@
+{
+  "etf": "Roundhill Memory ETF (DRAM)",
+  "as_of": "2026-10-07",
+  "source": "roundhillinvestments.com/etf/dram/ (Top Holdings table)",
+  "holdings_count": 22,
+  "top10": [
+    {"name": "Micron Technology Inc", "ticker": "MU", "weight_pct": 27.36, "arcus": "MU-USD"},
+    {"name": "Samsung Electronics Co", "ticker": "005930 KS", "weight_pct": 25.30, "arcus": null},
+    {"name": "SK hynix", "ticker": "000660 KS", "weight_pct": 22.13, "arcus": "SKHY-USD"},
+    {"name": "CXMT Corp", "ticker": "BTMTQT8 TRS 052427 GS", "weight_pct": 5.27, "arcus": null},
+    {"name": "Sandisk", "ticker": "SNDK", "weight_pct": 4.65, "arcus": "SNDK-USD"},
+    {"name": "Seagate Technology Holdings", "ticker": "STX", "weight_pct": 4.22, "arcus": null},
+    {"name": "Western Digital", "ticker": "WDC", "weight_pct": 3.28, "arcus": null},
+    {"name": "Kioxia Holdings", "ticker": "285A JP", "weight_pct": 3.19, "arcus": null},
+    {"name": "Nanya Technology", "ticker": "2408 TT", "weight_pct": 2.45, "arcus": null},
+    {"name": "Winbond Electronics", "ticker": "2344 TT", "weight_pct": 1.14, "arcus": null}
+  ],
+  "top10_total_pct": 98.99,
+  "others_est_pct": 1.01,
+  "tradeable_pct": 54.14,
+  "untradeable_pct": 45.86
+}
